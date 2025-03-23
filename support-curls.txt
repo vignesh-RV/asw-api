@@ -1,0 +1,10 @@
+------- TO CREATE PAYMENTS ----------
+
+curl --location 'http://localhost:5000/payments' \
+--header 'Content-Type: application/json' \
+--data '{
+    "user_id": 1,
+    "transaction_type": "TUITION",
+    "amount": 10,
+    "object_id": 2
+}'
