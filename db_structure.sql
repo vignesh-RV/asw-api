@@ -213,3 +213,6 @@ CREATE TABLE `users` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-03-23 22:14:51
+
+
+INSERT INTO ashdb.users (user_name, gender, height, weight, dob, nationality, religion, caste, mother_tongue, native_place, mobile_no, aadhaar, email, first_graduate, reg_no, password, created_date, created_by, last_modified_date, last_modified_by, user_type, batch, semester, current_year, section_name, course, school, blood_group, course_duration_in_years, course_fees, profile_image) VALUES('Vignesh Rajagopal', 'MALE', 180, 70, '2025-03-01', 'INDIAN', 'HINDU', 'OBC/BC', 'TAMIL', 'CHENNAI', 8056327227, 232323231456, 'rvikky1995@gmail.com', 0, '123456', 'MTIzNDU2Nzg=', '2025-03-17 20:15:11', -1, '2025-03-23 14:40:36', -1, 'STUDENT', '2023-2025', 1, 1, 'A1', 'COMPUTER SCIENCE AND ENGINEERING', 'School of Computing', 'O+', 2, 100000, '');
