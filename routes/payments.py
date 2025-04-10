@@ -62,8 +62,8 @@ def get_payment(payment_id):
 def get_payments_by_user(user_id):
     payments = Payment.query.order_by(desc(Payment.created_date)).filter_by(user_id=user_id).all()
 
-    if not payments:
-        return jsonify({"message": "No payments found for this user"}), 404
+    # if not payments:
+    #     return jsonify({"message": "No payments found for this user"}), 404
 
     return jsonify([payment.to_dict() for payment in payments])
 

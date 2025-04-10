@@ -40,10 +40,10 @@ students_schema = StudentSchema(many=True)
 
 
 # Create a new student
-@student_bp.route('/students', methods=['POST'])
-def add_student():
+@student_bp.route('/create_rfid', methods=['POST'])
+def create_rfid():
     data = request.json
-    new_student = RFID(name=data['name'], rfid=data['rfid'], balance=data.get('balance', 0.0))
+    new_student = RFID(holder_id=data['student_id'], balance=data.get('balance', 0.0))
     db.session.add(new_student)
     db.session.commit()
     return student_schema.jsonify(new_student)

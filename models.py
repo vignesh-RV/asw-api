@@ -15,7 +15,7 @@ class Users(db.Model):
     mother_tongue = db.Column(db.String(100), nullable=True)
     native_place = db.Column(db.String(100), nullable=True)
     mobile_no = db.Column(db.BigInteger, nullable=False, unique=True)
-    aadhaar = db.Column(db.BigInteger, nullable=True, unique=True)
+    aadhaar = db.Column(db.String(100), nullable=True, unique=True)
     email = db.Column(db.String(100), nullable=True, unique=True)
     first_graduate = db.Column(db.Boolean, nullable=False, default=False)
     reg_no = db.Column(db.String(50), nullable=False, unique=True)

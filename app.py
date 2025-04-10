@@ -24,11 +24,12 @@ with app.app_context():
     except Exception as e:
         print(f"Database connection failed: {e}")
 
-app.register_blueprint(user_bp, url_prefix='/users')
-app.register_blueprint(student_bp, url_prefix='/students')
-app.register_blueprint(attendance_bp, url_prefix='/attendance')
-app.register_blueprint(payments_bp, url_prefix='/payments')
-app.register_blueprint(common_bp, url_prefix='/common')
+BASE_PREFIX = "/api"
+app.register_blueprint(user_bp, url_prefix=f'{BASE_PREFIX}/users')
+app.register_blueprint(student_bp, url_prefix=f'{BASE_PREFIX}/students')
+app.register_blueprint(attendance_bp, url_prefix=f'{BASE_PREFIX}/attendance')
+app.register_blueprint(payments_bp, url_prefix=f'{BASE_PREFIX}/payments')
+app.register_blueprint(common_bp, url_prefix=f'{BASE_PREFIX}/common')
 
 if __name__ == '__main__':
     app.run(debug=True)

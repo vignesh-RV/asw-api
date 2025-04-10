@@ -1,5 +1,9 @@
+import json
+import os
 from datetime import datetime
 
+import numpy as np
+from deepface import DeepFace
 from flask import Blueprint, request, jsonify
 from models import Users,Parent, ParentSchema
 from extension.extensions import db
@@ -26,6 +30,13 @@ def get_user(user_id):
                  column.name != 'password'}
     return jsonify(user_data)
 
+
+@user_bp.route('/list', methods=['GET'])
+def get_users():
+    all_users = Users.query.with_entities(Users.user_id, Users.reg_no, Users.user_name,Users.user_type, Users.course, Users.batch, Users.section_name, Users.semester, Users.current_year, Users.course_duration_in_years, Users.created_date).all()
+    user_list = [u._asdict() for u in all_users]
+    return jsonify(user_list)
+
 @user_bp.route('/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     user = Users.query.get_or_404(user_id)
@@ -49,11 +60,12 @@ def login():
         data = request.get_json()
         reg_no = data.get('reg_no')
         password = data.get('password')
+        user_type = data.get('user_type')
 
         if not reg_no or not password:
             return jsonify({'error': 'Missing required fields'}), 400
 
-        query = text("SELECT user_id, password FROM users WHERE reg_no = :reg_no")
+        query = text("SELECT user_id, password, user_type FROM users WHERE reg_no = :reg_no")
         result = db.session.execute(query, {"reg_no": reg_no})
         user_row = result.fetchone()
         if not user_row:
@@ -61,6 +73,8 @@ def login():
 
         if encode_base64(password) != user_row[1]:
             return jsonify({'error': 'Incorrect password..'}), 401
+        if user_type != user_row[2] and user_row[2] == 'STAFF':
+            return jsonify({'error': 'Invalid user type..'}), 401
         return get_user(int(user_row[0]))
 
     except db.connector.Error as e:
@@ -118,3 +132,77 @@ def store_parent():
 def encode_base64(text):
     encoded_bytes = base64.b64encode(text.encode('utf-8'))
     return encoded_bytes.decode('utf-8')
+
+
+
+# Function to encode a face
+def encode_face(image_path):
+    return None
+
+# Register user and store encoding in MySQL
+# @user_bp.route("/registerFace", methods=["POST"])
+# def register():
+#     username = request.form.get("username")
+#     file = request.files["file"]
+#
+#     # Save temporary image
+#     file_path = f"temp_{username}.jpg"
+#     file.save(file_path)
+#
+#     # Encode face
+#     encoding = encode_face(file_path)
+#     if encoding is None:
+#         return jsonify({"message": "No face detected"}), 400
+#
+#     encoding_json = json.dumps(encoding.tolist())
+#     mycursor = db.session()
+#     try:
+#         mycursor.execute("INSERT INTO users (username, face_encoding) VALUES (%s, %s)", (username, encoding_json))
+#         db.commit()
+#     except db.connector.Error as e:
+#         return jsonify({"message": "Username already exists"}), 400
+#
+#     return jsonify({"message": "User registered successfully"}), 200
+#
+# # Login by verifying face
+# @user_bp.route("/verifyFace", methods=["POST"])
+# def verify_face():
+#     file = request.files["file"]
+#     file_path = "temp_login.jpg"
+#     file.save(file_path)
+#
+#     encoding = encode_face(file_path)
+#     if encoding is None:
+#         return jsonify({"message": "No face detected"}), 400
+#     mycursor = db.session()
+#     mycursor.execute("SELECT username, face_encoding FROM users")
+#     users = mycursor.fetchall()
+#
+#     for username, stored_encoding_json in users:
+#         stored_encoding = np.array(json.loads(stored_encoding_json))
+#         match = face_recognition.compare_faces([stored_encoding], encoding)[0]
+#
+#         if match:
+#             return jsonify({"message": f"Login successful for {username}"}), 200
+#
+#     return jsonify({"message": "Face not recognized"}), 401
+
+
+@user_bp.route('/verify', methods=['POST'])
+def verify():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files['file']
+    filename = os.path.join("images", "uploaded_image.jpg")
+    file.save(filename)
+
+    # Compare with known image (this should be a predefined stored image)
+    known_image_path = os.path.join("images", "passport-size.PNG")  # Change this path as needed
+
+    try:
+        result = DeepFace.verify(filename, known_image_path)
+        match = result["verified"]
+        return jsonify({"match": match, "message": "Match Found" if match else "No Match"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
