@@ -3,7 +3,7 @@ import requests
 from flask import Blueprint, request, jsonify, Response
 from sqlalchemy import desc
 
-from models import db, Payment  # Import your model
+from models import db, Payment, Users  # Import your model
 from routes.students import get_rfid_by_student, RFID
 
 payments_bp = Blueprint('payments_bp', __name__)
@@ -12,24 +12,30 @@ payments_bp = Blueprint('payments_bp', __name__)
 @payments_bp.route('/', methods=['POST'])
 def create_payment():
     data = request.get_json()
-    if not data.get('user_id') or not data.get('amount'):
-        return jsonify({"error": "user_id and amount are required"}), 400
+    if not data.get('amount'):
+        return jsonify({"error": "Amount are required"}), 400
+
+    rfid_data = RFID.query.filter_by(rf_id=data.get('rfid')).first()
+    if not rfid_data:
+        return jsonify({"message": "Invalid RFID.."}), 401
+    user_data = Users.query.filter_by(user_id=rfid_data.holder_id, face_id=data.get('face_id')).first()
+    if not user_data:
+        return jsonify({"message": "Face ID is not matching.."}), 401
+    if data.get('thump_id') != '' and user_data.thump_id != data.get('thump_id'):
+        return jsonify({"message": "Thump ID is not matching.."}), 401
 
     # validate student available balance
+    user_id = user_data.user_id
+    cardData = rfid_data
 
-    cardData = get_rfid_by_student(data.get('user_id'))
-
-    if isinstance(cardData, flask.Response):
-        cardData = cardData.get_json()
-
-    if cardData.get('balance',0) < data['amount']:
+    if cardData.balance < data['amount']:
         return jsonify({"error": "Insufficient balance.."}), 500
 
-    if cardData.get('locked',False):
+    if cardData.locked:
         return jsonify({"error": "Card is Locked.."}), 500
 
     new_payment = Payment(
-        user_id=data['user_id'],
+        user_id=user_id,
         transaction_type=data.get('transaction_type', 'TUITION'),
         amount=data['amount'],
         object_id=data['object_id']
@@ -38,7 +44,7 @@ def create_payment():
     db.session.commit()
 
     # adjust the card balance
-    rfid = RFID.query.filter_by(rf_id=cardData.get('rf_id',-1)).first()
+    rfid = RFID.query.filter_by(rf_id=cardData.rf_id).first()
     rfid.balance -= data['amount']
     db.session.commit()
 

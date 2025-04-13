@@ -3,9 +3,11 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify
 from models import Users, Parent, ParentSchema, Attendance
 from extension.extensions import db
+from routes.students import RFID
 
 attendance_bp = Blueprint('attendance_bp', __name__)
 parent_schema = ParentSchema(many=True)
+
 
 @attendance_bp.route('/range', methods=['POST'])
 def get_attendance_by_range():
@@ -33,26 +35,38 @@ def get_attendance_by_range():
 
     return jsonify([record.to_dict() for record in records])
 
+
 @attendance_bp.route('/', methods=['POST'])
 def post():
     """Create a new attendance record."""
     data = request.get_json()
+    rfid_data = RFID.query.filter_by(rf_id=data.get('rfid')).first()
+    if not rfid_data:
+        return jsonify({"message": "Invalid RFID.."}), 401
+    user_data = Users.query.filter_by(user_id=rfid_data.holder_id, face_id=data.get('face_id')).first()
+    if not user_data:
+        return jsonify({"message": "Face ID is not matching.."}), 401
+    if data.get('thump_id') is not None and user_data.thump_id != data.get('thump_id'):
+        return jsonify({"message": "Thump ID is not matching.."}), 401
+
     new_record = Attendance(
-        user_id=data.get("user_id"),
+        user_id=user_data.user_id,
         punch_type=data.get("punch_type", "IN")
     )
     db.session.add(new_record)
     db.session.commit()
     return jsonify({"message": "Attendance record added!", "record": new_record.to_dict()})
 
+
 @attendance_bp.route('/', methods=['PUT'])
-def put( attendance_id):
+def put(attendance_id):
     """Update an existing attendance record."""
     attendance = Attendance.query.get_or_404(attendance_id)
     data = request.get_json()
     attendance.punch_type = data.get("punch_type", attendance.punch_type)
     db.session.commit()
     return jsonify({"message": "Attendance record updated!", "record": attendance.to_dict()})
+
 
 @attendance_bp.route('/<int:attendance_id>', methods=['DELETE'])
 def delete(attendance_id):

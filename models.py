@@ -34,6 +34,8 @@ class Users(db.Model):
     course_duration_in_years = db.Column(db.BigInteger, nullable=True, default=2)
     course_fees = db.Column(db.BigInteger, nullable=True, default=10000)
     profile_image = db.Column(db.Text, nullable=True)
+    face_id = db.Column(db.Text, nullable=True)
+    thump_id = db.Column(db.Text, nullable=True)
 
 class Parent(db.Model):
     __tablename__ = 'parents'

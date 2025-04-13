@@ -139,54 +139,6 @@ def encode_base64(text):
 def encode_face(image_path):
     return None
 
-# Register user and store encoding in MySQL
-# @user_bp.route("/registerFace", methods=["POST"])
-# def register():
-#     username = request.form.get("username")
-#     file = request.files["file"]
-#
-#     # Save temporary image
-#     file_path = f"temp_{username}.jpg"
-#     file.save(file_path)
-#
-#     # Encode face
-#     encoding = encode_face(file_path)
-#     if encoding is None:
-#         return jsonify({"message": "No face detected"}), 400
-#
-#     encoding_json = json.dumps(encoding.tolist())
-#     mycursor = db.session()
-#     try:
-#         mycursor.execute("INSERT INTO users (username, face_encoding) VALUES (%s, %s)", (username, encoding_json))
-#         db.commit()
-#     except db.connector.Error as e:
-#         return jsonify({"message": "Username already exists"}), 400
-#
-#     return jsonify({"message": "User registered successfully"}), 200
-#
-# # Login by verifying face
-# @user_bp.route("/verifyFace", methods=["POST"])
-# def verify_face():
-#     file = request.files["file"]
-#     file_path = "temp_login.jpg"
-#     file.save(file_path)
-#
-#     encoding = encode_face(file_path)
-#     if encoding is None:
-#         return jsonify({"message": "No face detected"}), 400
-#     mycursor = db.session()
-#     mycursor.execute("SELECT username, face_encoding FROM users")
-#     users = mycursor.fetchall()
-#
-#     for username, stored_encoding_json in users:
-#         stored_encoding = np.array(json.loads(stored_encoding_json))
-#         match = face_recognition.compare_faces([stored_encoding], encoding)[0]
-#
-#         if match:
-#             return jsonify({"message": f"Login successful for {username}"}), 200
-#
-#     return jsonify({"message": "Face not recognized"}), 401
-
 
 @user_bp.route('/verify', methods=['POST'])
 def verify():
