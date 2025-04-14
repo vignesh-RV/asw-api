@@ -1,10 +1,9 @@
-import flask
-import requests
-from flask import Blueprint, request, jsonify, Response
+from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify
 from sqlalchemy import desc
 
 from models import db, Payment, Users  # Import your model
-from routes.students import get_rfid_by_student, RFID
+from routes.students import RFID
 
 payments_bp = Blueprint('payments_bp', __name__)
 
@@ -12,10 +11,11 @@ payments_bp = Blueprint('payments_bp', __name__)
 @payments_bp.route('/', methods=['POST'])
 def create_payment():
     data = request.get_json()
+    print(data)
     if not data.get('amount'):
         return jsonify({"error": "Amount are required"}), 400
 
-    rfid_data = RFID.query.filter_by(rf_id=data.get('rfid')).first()
+    rfid_data = RFID.query.filter_by(uuid=data.get('rfid_uuid')).first()
     if not rfid_data:
         return jsonify({"message": "Invalid RFID.."}), 401
     user_data = Users.query.filter_by(user_id=rfid_data.holder_id, face_id=data.get('face_id')).first()
@@ -29,10 +29,10 @@ def create_payment():
     cardData = rfid_data
 
     if cardData.balance < data['amount']:
-        return jsonify({"error": "Insufficient balance.."}), 500
+        return jsonify({"status": "error", "data": "Insufficient balance.."}), 500
 
     if cardData.locked:
-        return jsonify({"error": "Card is Locked.."}), 500
+        return jsonify({"status": "error", "data": "Card is Locked.."}), 500
 
     new_payment = Payment(
         user_id=user_id,

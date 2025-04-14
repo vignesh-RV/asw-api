@@ -75,14 +75,14 @@ def get_rfid_by_student(holder_id):
 
 
 # Update a student's details
-@student_bp.route('/students/<rfid>', methods=['PUT'])
+@student_bp.route('/update_rfid/<rfid>', methods=['PUT'])
 def update_student(rfid):
-    student = RFID.query.filter_by(rfid=rfid).first()
+    student = RFID.query.filter_by(rf_id=rfid).first()
     if not student:
         return jsonify({"message": "Student not found"}), 404
 
     data = request.json
-    student.name = data.get('name', student.name)
+    student.uuid = data.get('uuid', student.uuid)
     db.session.commit()
     return student_schema.jsonify(student)
 

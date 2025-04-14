@@ -20,9 +20,9 @@ class Users(db.Model):
     first_graduate = db.Column(db.Boolean, nullable=False, default=False)
     reg_no = db.Column(db.String(50), nullable=False, unique=True)
     password = db.Column(db.String(100), nullable=False)
-    created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
     created_by = db.Column(db.BigInteger, nullable=False, default=-1)
-    last_modified_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_modified_date = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now)
     last_modified_by = db.Column(db.BigInteger, nullable=False, default=-1)
     batch = db.Column(db.String(100), nullable=True)
     semester = db.Column(db.BigInteger, nullable=True, default=1)
@@ -71,7 +71,7 @@ class Attendance(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, nullable=False)
     punch_type = db.Column(db.String(100), default='RFID')
-    created_date = db.Column(db.TIMESTAMP, nullable=False, default=datetime.utcnow)
+    created_date = db.Column(db.TIMESTAMP, nullable=False, default=datetime.now)
 
     def __repr__(self):
         return f"<Attendance id={self.id}, user_id={self.user_id}, punch_type={self.punch_type}, created_date={self.created_date}>"
@@ -93,7 +93,7 @@ class Payment(db.Model):
     transaction_type = db.Column(db.String(100), nullable=False, default='FEES')
     amount = db.Column(db.BigInteger, nullable=False, default=0)
     object_id = db.Column(db.BigInteger, nullable=True, default=-1)
-    created_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     def to_dict(self):
         return {

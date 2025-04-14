@@ -14,7 +14,7 @@ db.init_app(app)
 ma.init_app(app)
 
 # Allow CORS for all routes
-CORS(app, origins=["http://localhost:4200"])
+CORS(app, origins=["http://localhost:4200","http://127.0.0.1:5000"])
 
 # Test connection
 with app.app_context():
@@ -32,4 +32,4 @@ app.register_blueprint(payments_bp, url_prefix=f'{BASE_PREFIX}/payments')
 app.register_blueprint(common_bp, url_prefix=f'{BASE_PREFIX}/common')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='192.168.1.40')

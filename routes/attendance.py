@@ -40,14 +40,16 @@ def get_attendance_by_range():
 def post():
     """Create a new attendance record."""
     data = request.get_json()
-    rfid_data = RFID.query.filter_by(rf_id=data.get('rfid')).first()
+    print(data)
+    rfid_data = RFID.query.filter_by(uuid=data.get('rfid_uuid')).first()
     if not rfid_data:
-        return jsonify({"message": "Invalid RFID.."}), 401
+        return jsonify({"status": "error", "data": "Invalid RFID.."}), 401
+
     user_data = Users.query.filter_by(user_id=rfid_data.holder_id, face_id=data.get('face_id')).first()
     if not user_data:
-        return jsonify({"message": "Face ID is not matching.."}), 401
-    if data.get('thump_id') is not None and user_data.thump_id != data.get('thump_id'):
-        return jsonify({"message": "Thump ID is not matching.."}), 401
+        return jsonify({"status": "error", "data":  "Face ID is not matching.."}), 401
+    if data.get('thump_id') != '' and user_data.thump_id != data.get('thump_id'):
+        return jsonify({"status": "error", "data":  "Thump ID is not matching.."}), 401
 
     new_record = Attendance(
         user_id=user_data.user_id,
