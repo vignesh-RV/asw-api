@@ -1,3 +1,5 @@
+import json
+
 from flask import Blueprint, request, jsonify
 from flask import Blueprint, request, jsonify
 from sqlalchemy import desc
@@ -38,6 +40,7 @@ def create_payment():
         user_id=user_id,
         transaction_type=data.get('transaction_type', 'TUITION'),
         amount=data['amount'],
+        location= json.dumps(data['location']),
         object_id=data['object_id']
     )
     db.session.add(new_payment)

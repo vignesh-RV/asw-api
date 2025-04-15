@@ -1,9 +1,5 @@
-import json
-import os
 from datetime import datetime
 
-import numpy as np
-from deepface import DeepFace
 from flask import Blueprint, request, jsonify
 from models import Users,Parent, ParentSchema
 from extension.extensions import db
@@ -132,29 +128,3 @@ def store_parent():
 def encode_base64(text):
     encoded_bytes = base64.b64encode(text.encode('utf-8'))
     return encoded_bytes.decode('utf-8')
-
-
-
-# Function to encode a face
-def encode_face(image_path):
-    return None
-
-
-@user_bp.route('/verify', methods=['POST'])
-def verify():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
-
-    file = request.files['file']
-    filename = os.path.join("images", "uploaded_image.jpg")
-    file.save(filename)
-
-    # Compare with known image (this should be a predefined stored image)
-    known_image_path = os.path.join("images", "passport-size.PNG")  # Change this path as needed
-
-    try:
-        result = DeepFace.verify(filename, known_image_path)
-        match = result["verified"]
-        return jsonify({"match": match, "message": "Match Found" if match else "No Match"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500

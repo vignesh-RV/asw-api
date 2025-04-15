@@ -1,5 +1,8 @@
+from sqlalchemy import Numeric
+
 from extension.extensions import db, ma
 from datetime import datetime
+import json
 
 class Users(db.Model):
     user_id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
@@ -91,7 +94,8 @@ class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, nullable=False)
     transaction_type = db.Column(db.String(100), nullable=False, default='FEES')
-    amount = db.Column(db.BigInteger, nullable=False, default=0)
+    amount = db.Column(Numeric(precision=12, scale=2), nullable=False, default=0)
+    location = db.Column(db.String, nullable=False, default=0)
     object_id = db.Column(db.BigInteger, nullable=True, default=-1)
     created_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
@@ -102,6 +106,7 @@ class Payment(db.Model):
             "transaction_type": self.transaction_type,
             "amount": self.amount,
             "object_id": self.object_id,
+            "location": json.loads(self.location),
             "created_date": self.created_date.isoformat()
         }
 
